@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14.5
+    environment:
+      POSTGRES_DB: prod3
+      POSTGRES_USER: megauser
+      POSTGRES_PASSWORD: megapassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  bot:
+    build: .
+    command: python __main__.py
+    volumes:
+      - .:/code
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: prod3
+      POSTGRES_USER: megauser
+      POSTGRES_PASSWORD: megapassword
+
+volumes:
+  postgres_data:
+  redis_data:
